@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>皮卡丘.png</file>
+    </qresource>
+</RCC>

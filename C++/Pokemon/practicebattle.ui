@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PracticeBattle</class>
+ <widget class="QWidget" name="PracticeBattle">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPushButton" name="level2Btn">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>270</y>
+     <width>84</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>初级</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="level3Btn">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>270</y>
+     <width>84</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>中级</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="level4Btn">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>270</y>
+     <width>84</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>高级</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="level1Btn">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>270</y>
+     <width>84</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>入门</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="returnBtn">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>40</y>
+     <width>84</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>返回</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
