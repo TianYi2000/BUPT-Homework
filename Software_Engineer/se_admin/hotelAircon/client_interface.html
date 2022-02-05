@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>客户端接口</title>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<link href="css/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<script type="text/javascript" >
+var wsUri ="ws://206.189.215.142:3000";
+var ws;
+if ("WebSocket" in window)
+{
+	alert("您的浏览器支持 WebSocket!");
+
+	// 打开一个 web socket
+	ws = new WebSocket(wsUri);
+
+
+	ws.onmessage = function (evt) 
+	{ 
+		var received_msg = evt.data;
+		alert("数据已接收...数据内容为："+evt.data);
+	};
+	
+	ws.onclose = function()
+	{ 
+		// 关闭 websocket
+		alert("连接已关闭..."); 
+	};
+}
+	
+else
+{
+	// 浏览器不支持 WebSocket
+	alert("您的浏览器不支持 WebSocket!");
+}
+
+function powerON(){
+	var data={"poweron":{"room_id":0,"cur_temp":0}};
+	if(ws.readyState==1)
+	{
+		// Web Socket 已连接上，使用 send() 方法发送数据
+		var data_json=JSON.stringify(data); 
+		ws.send(data_json);
+		alert("数据发送中...数据内容为："+data_json);
+	};
+}
+
+function powerOFF(){
+	var data={"poweroff":{"room_id":0,"state":0}};
+	if(ws.readyState==1)
+	{
+		// Web Socket 已连接上，使用 send() 方法发送数据
+		var data_json=JSON.stringify(data); 
+		ws.send(data_json);
+		alert("数据发送中...数据内容为："+data_json);
+	};
+}
+
+function config(){
+	var data=new Object();
+	data.config=new Object();
+	data.config.room_id=0;
+	var val=document.getElementById("fan").value;
+	data.config.fan=parseInt(val);
+	val=document.getElementById("mode").value;
+	data.config.mode=parseInt(val);
+	val=document.getElementById("target_temp").value;
+	data.config.target_temp=parseInt(val);
+	var data_str=JSON.stringify
+	if(ws.readyState==1)
+	{
+		// Web Socket 已连接上，使用 send() 方法发送数据
+		var data_json=JSON.stringify(data); 
+		ws.send(data_json);
+		alert("数据发送中...数据内容为："+data_json);
+	};
+}
+
+function temp_update(){
+	var data=new Object();
+	data.temp_update=new Object();
+	data.temp_update.room_id=0;
+	var val=document.getElementById("cur_temp").value;
+	data.temp_update.cur_temp=parseInt(val);
+	if(ws.readyState==1)
+	{
+		// Web Socket 已连接上，使用 send() 方法发送数据
+		var data_json=JSON.stringify(data); 
+		ws.send(data_json);
+		alert("数据发送中...数据内容为："+data_json);
+	};
+}
+</script>
+<header>
+<h1 align="center">房间号:<span class="display">xxx</span></h1><hr>
+</header>
+
+<div id="MessageDisplay" name="MessageDisplay">这里显示从后端接收的字符串。</div><hr>
+
+<main>
+<div id="interfaceBody">	
+<form>
+<input type="button" value="开机" onClick="powerON()">
+<input type="button" value="关机" onClick="powerOFF()">
+<div id="config">
+<label>Fan:</label><input id="fan" name="fan" type="number">
+<label>Mode:</label><input id="mode" name="mode" type="number">
+<label>Target_Temp:</label><input id="target_temp" name="target_temp" type="number">
+<input type="button" value="设置工作参数" onClick="config()">
+</div>
+<div id="temp_update">
+<label>Cur_Temp:</label><input id="cur_temp" name="cur_temp" type="number">
+<input type="button" value="温度更新" onClick="temp_update()">
+</div>
+</form>
+</div>
+</main>
+</body>
+</html>

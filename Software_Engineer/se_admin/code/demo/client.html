@@ -1,0 +1,16 @@
+<html>
+<head>
+	<script type="text/javascript">
+	var wsUri ="ws://206.189.215.142:3000";
+	websocket = new WebSocket(wsUri);
+	websocket.onmessage = function(evt) { 
+            console.log(evt.data);
+        }; 
+    //连接需要时间，连接成功后再发送，不能立即发送
+	websocket.send("aaa");
+	</script>
+	</head>
+	<body>
+		
+	</body>
+</html>
