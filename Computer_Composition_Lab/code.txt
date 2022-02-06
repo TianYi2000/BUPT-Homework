@@ -1,0 +1,453 @@
+LIBRARY IEEE;  
+USE IEEE.STD_LOGIC_1164.ALL;  
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;  
+  
+ENTITY CPU IS  
+    PORT (  
+        --输入信号  
+        CLR,T3,C,Z  : IN STD_LOGIC;  
+        W1,W2,W3    : IN STD_LOGIC;  
+        SW          : IN STD_LOGIC_VECTOR(2 DOWNTO 0);  
+        IR          : IN STD_LOGIC_VECTOR(7 DOWNTO 4);  
+         
+  
+        --输出信号  
+        DRW     : OUT STD_LOGIC;  
+        PCINC   : OUT STD_LOGIC;  
+        LPC     : OUT STD_LOGIC;  
+        LAR     : OUT STD_LOGIC;  
+        PCADD   : OUT STD_LOGIC;  
+        ARINC   : OUT STD_LOGIC;  
+        SELCTL  : OUT STD_LOGIC;  
+        MEMW    : OUT STD_LOGIC;  
+        STOP    : OUT STD_LOGIC;  
+        LIR     : OUT STD_LOGIC;  
+        LDZ     : OUT STD_LOGIC;  
+        LDC     : OUT STD_LOGIC;  
+        CIN     : OUT STD_LOGIC;  
+        S       : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);  
+        M       : OUT STD_LOGIC;  
+        ABUS    : OUT STD_LOGIC;  
+        SBUS    : OUT STD_LOGIC;  
+        MBUS    : OUT STD_LOGIC;  
+        SHORT   : OUT STD_LOGIC;  
+        LONG    : OUT STD_LOGIC;  
+        SEL     : OUT STD_LOGIC_VECTOR(3 DOWNTO 0)  
+    );  
+END CPU;     
+  
+ARCHITECTURE ARC OF CPU IS  
+    SIGNAL ST0, SST0 : STD_LOGIC;   --ST0是分支信号,SST0是控制ST0翻转的信号  
+    SIGNAL SET_PC, SSET_PC    : STD_LOGIC;   --SET_PC判断当前是否还未执行过指令，可以设定执行指令的初始位置  
+BEGIN  
+    PROCESS (CLR, T3)  
+    BEGIN  
+        IF (CLR = '0') THEN  
+            SET_PC <= '0';  
+        ELSE  
+            IF (T3'EVENT AND T3 = '0' AND SSET_PC = '1' ) THEN  
+                SET_PC <= '1';  
+            END IF;  
+        END IF;  
+    END PROCESS;  
+     
+    PROCESS (SW, IR, W1, W2, W3, C, Z, CLR, T3)  
+    BEGIN  
+        --计算信号前，先将所有信号初始化为0  
+        DRW     <= '0';  
+        PCINC   <= '0';  
+        LPC     <= '0';  
+        LAR     <= '0';  
+        PCADD   <= '0';  
+        ARINC   <= '0';  
+        SELCTL  <= '0';  
+        MEMW    <= '0';  
+        STOP    <= '0';  
+        LIR     <= '0';  
+        LDZ     <= '0';  
+        LDC     <= '0';  
+        CIN     <= '0';  
+        S       <= "0000";  
+        M       <= '0';  
+        ABUS    <= '0';  
+        SBUS    <= '0';  
+        MBUS    <= '0';  
+        SHORT   <= '0';  
+        LONG    <= '0';  
+        SEL     <= "0000";  
+        SST0    <= '0';  
+        SSET_PC <= '0';  
+  
+        IF (CLR = '0') THEN  
+            ST0 <= '0';         
+        ELSE  
+            IF (T3'EVENT AND T3 = '0' AND SST0 = '1' ) THEN --在T3下降沿时若SST0 = 1则翻转ST0  
+                ST0 <= NOT ST0;  
+            END IF;  
+            CASE SW IS  
+                WHEN "000" =>                        --以初始PC为0的方式顺序执行指令  
+                    CASE IR IS  
+                        WHEN "0000" => --NOP  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+  
+                        WHEN "0001" => --ADD  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+                            S <= "1001";  
+                            CIN <= W1;  
+                            ABUS <= W1;  
+                            DRW <= W1;  
+                            LDC <= W1;  
+                            LDZ <= W1;  
+  
+                                                      
+  
+                        WHEN "0010" => --SUB  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+                            S <= "0110";  
+                            ABUS <= W1;  
+                            DRW <= W1;  
+                            LDC <= W1;  
+                            LDZ <= W1;  
+  
+                        WHEN "0011" => --AND  
+                            LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                S <= "1011";  
+                                M <= W1;  
+                                ABUS <= W1;  
+                                DRW <= W1;  
+                                LDZ <= W1;                       
+  
+                        WHEN "0100" => --INC  
+                            LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                S <= "0000";  
+                                ABUS <= W1;  
+                                DRW <= W1;  
+                                LDC <= W1;  
+                                LDZ <= W1;  
+                             
+                             
+  
+                        WHEN "0101" => --LD  
+                            LIR <= W2;  
+                                PCINC <= W2;  
+                                S <= "1010";  
+                                M <= W1;  
+                                ABUS <= W1;  
+                                LAR <= W1;  
+                                MBUS <= W2;  
+                                DRW <= W2;  
+  
+                        WHEN "0110" => --ST  
+                            LIR <= W2;  
+                                PCINC <= W2;  
+                                M <= W1 or W2;  
+                                S(3) <= '1';  
+                                S(2) <= W1;  
+                                S(1) <= '1';  
+                                S(0) <= W1;  
+                                ABUS <= W1 or W2;  
+                                LAR <= W1;  
+                                MEMW <= W2;  
+  
+                        WHEN "0111" => --JC  
+                            LIR <= (W1 and (not C)) or (W2 and C);  
+                                PCINC <= (W1 and (not C)) or (W2 and C);  
+                                PCADD <= C and W1;  
+                                SHORT <= W1 and (not C);  
+  
+                        WHEN "1000" => --JZ  
+                            LIR <= (W1 and (not Z)) or (W2 and Z);  
+                                PCINC <= (W1 and (not Z)) or (W2 and Z);  
+                                PCADD <= Z and W1;  
+                                SHORT <= W1 and (not Z);  
+                        WHEN "1001" => --JMP  
+                            LIR <= W2;  
+                                PCINC <= W2;  
+                                M <= W1;  
+                                S <= "1111";  
+                                ABUS <= W1;  
+                                LPC <= W1;  
+  
+                        WHEN "1010" => --OUT  
+                            M <= W1;  
+                                S <= "1010";  
+                                ABUS <= W1;  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+  
+                        WHEN "1011" => --XOR  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+                            M <= W1;  
+                            S <= "0110";  
+                            ABUS <= W1;  
+                            LDZ <= W1;  
+                            DRW <= W1;  
+  
+                        WHEN "1100" => --OR  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+                            M <= W1;  
+                            S <= "1110";  
+                            ABUS <= W1;  
+                            LDZ <= W1;  
+                            DRW <= W1;  
+                        when "1011" => --XOR  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+                            M <= W1;  
+                            S <= "0110";  
+                            ABUS <= W1;  
+                            LDZ <= W1;  
+                            DRW <= W1;  
+  
+                        when "1100" => --NOT(AB)  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+                            M <= W1;  
+                            S <= "0100";  
+                            ABUS <= W1;  
+                            LDZ <= W1;  
+                            DRW <= W1;  
+  
+                        when "1101" => --NOT(A+B)  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+                            M <= W1;  
+                            S <= "0001";  
+                            ABUS <= W1;  
+                            LDZ <= W1;  
+                            DRW <= W1;  
+  
+                        WHEN "1110" => --STP  
+                            STOP <= W1;  
+  
+                        WHEN OTHERS =>      --未知指令当作NOP处理，跳至下一条  
+                            LIR <= W1;  
+                            PCINC <= W1;  
+                            SHORT <= W1;  
+                        END CASE;  
+                WHEN "001" =>  
+                    SELCTL <= W1;  
+                    SHORT <= W1;  
+                    SBUS <= W1;  
+                    STOP <= W1;  
+                    SST0 <= W1 AND (NOT ST0);  
+                    LAR <= W1 AND (NOT ST0);  
+                    ARINC <= W1 AND ST0;  
+                    MEMW <= W1 AND ST0;  
+  
+                WHEN "010" =>  
+                    SELCTL <= W1;  
+                    SHORT <= W1;  
+                    SBUS <= W1 AND (NOT ST0);  
+                    MBUS <= W1 AND ST0;  
+                    STOP <= W1;  
+                    SST0 <= W1 AND (NOT ST0);  
+                    LAR <= W1 AND (NOT ST0);  
+                    ARINC <= W1 AND ST0;  
+  
+                WHEN "011" =>  
+                    SELCTL <= '1';  
+                    SEL(0) <= W1 OR W2;  
+                    STOP <= W1 OR W2;  
+                    SEL(3) <= W2;  
+                    SEL(1) <= W2;  
+  
+                WHEN "100" =>  
+                    SELCTL <= '1';  
+                    SST0 <= W2 AND (NOT ST0);  
+                    SBUS <= W1 OR W2;  
+                    STOP <= W1 OR W2;  
+                    DRW <= W1 OR W2;  
+                    SEL(3) <= (ST0 AND W1) OR (ST0 AND W2);  
+                    SEL(2) <= W2;  
+                    SEL(1) <= ((NOT ST0) AND W1) OR (ST0 AND W2);  
+                    SEL(0) <= W1;  
+                WHEN "101" =>               --任意指定初始PC的执行方式  
+                    IF (SET_PC = '0') THEN  
+                        SSET_PC <= W1;   --设定PC初始后，指令执行过程中不再可以设定     
+                        LPC <= W1;      --LPC打开，使数据通路上的值可以打入PC寄存器  
+                        SBUS <= W1;     --SBUS打开，使数据开关的值可以打入数据通路  
+                        SHORT <= W1;    --设定PC只需要一拍，因此此时置SHORT为1  
+                        STOP <= W1;  
+                    ELSE  
+                        CASE IR IS  
+                            WHEN "0000" => --NOP  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+  
+                            WHEN "0001" => --ADD  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                S <= "1001";  
+                                CIN <= W1;  
+                                ABUS <= W1;  
+                                DRW <= W1;  
+                                LDC <= W1;  
+                                LDZ <= W1;  
+  
+                            WHEN "0010" => --SUB  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                S <= "0110";  
+                                ABUS <= W1;  
+                                DRW <= W1;  
+                                LDC <= W1;  
+                                LDZ <= W1;  
+  
+                            WHEN "0011" => --AND  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                S <= "1011";  
+                                M <= W1;  
+                                ABUS <= W1;  
+                                DRW <= W1;  
+                                LDZ <= W1;  
+  
+                            WHEN "0100" => --INC  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                S <= "0000";  
+                                ABUS <= W1;  
+                                DRW <= W1;  
+                                LDC <= W1;  
+                                LDZ <= W1;  
+  
+                            WHEN "0101" => --LD  
+                                LIR <= W2;  
+                                PCINC <= W2;  
+                                S <= "1010";  
+                                M <= W1;  
+                                ABUS <= W1;  
+                                LAR <= W1;  
+                                MBUS <= W2;  
+                                DRW <= W2;  
+  
+                            WHEN "0110" => --ST  
+                                LIR <= W2;  
+                                PCINC <= W2;  
+                                M <= W1 OR W2;  
+                                S(3) <= '1';  
+                                S(2) <= W1;  
+                                S(1) <= '1';  
+                                S(0) <= W1;  
+                                ABUS <= W1 OR W2;  
+                                LAR <= W1;  
+                                MEMW <= W2;  
+  
+                            WHEN "0111" => --JC  
+                                LIR <= (W1 AND (NOT C)) OR (W2 AND C);  
+                                PCINC <= (W1 AND (NOT C)) OR (W2 AND C);  
+                                PCADD <= C AND W1;  
+                                SHORT <= W1 AND (NOT C);  
+  
+                            WHEN "1000" => --JZ  
+                                LIR <= (W1 AND (NOT Z)) OR (W2 AND Z);  
+                                PCINC <= (W1 AND (NOT Z)) OR (W2 AND Z);  
+                                PCADD <= Z AND W1;  
+                                SHORT <= W1 AND (NOT Z);  
+  
+                            WHEN "1001" => --JMP  
+                                LIR <= W2;  
+                                PCINC <= W2;  
+                                M <= W1;  
+                                S <= "1111";  
+                                ABUS <= W1;  
+                                LPC <= W1;  
+  
+                            WHEN "1010" => --OUT  
+                                M <= W1;  
+                                S <= "1010";  
+                                ABUS <= W1;  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+  
+                            WHEN "1011" => --XOR  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                M <= W1;  
+                                S <= "0110";  
+                                ABUS <= W1;  
+                                LDZ <= W1;  
+                                DRW <= W1;  
+  
+                            WHEN "1100" => --OR  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                M <= W1;  
+                                S <= "1110";  
+                                ABUS <= W1;  
+                                LDZ <= W1;  
+                                DRW <= W1;  
+  
+                            when "1011" => --XOR  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                M <= W1;  
+                                S <= "0110";  
+                                ABUS <= W1;  
+                                LDZ <= W1;  
+                                DRW <= W1;  
+  
+                            when "1100" => --NOT(AB)  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                M <= W1;  
+                                S <= "0100";  
+                                ABUS <= W1;  
+                                LDZ <= W1;  
+                                DRW <= W1;  
+  
+                            when "1101" => --NOT(A+B)  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                                M <= W1;  
+                                S <= "0001";  
+                                ABUS <= W1;  
+                                LDZ <= W1;  
+                                DRW <= W1;  
+  
+  
+                            WHEN "1110" => --STP  
+                                STOP <= W1;  
+  
+                            WHEN OTHERS =>      --未知指令当作NOP处理，跳至下一条  
+                                LIR <= W1;  
+                                PCINC <= W1;  
+                                SHORT <= W1;  
+                        END CASE;  
+                    END IF;  
+  
+                WHEN OTHERS => NULL;  
+            END CASE;  
+        END IF;  
+    END PROCESS;  
+END ARC;
