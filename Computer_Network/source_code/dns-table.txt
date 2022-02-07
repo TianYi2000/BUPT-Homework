@@ -1,0 +1,11 @@
+www.baidu.com 192.168.3.1
+www.zju.edu.cn 247.226.123.6
+byrbt.com 0.0.0.0
+www.666.com 10.3.9.161
+www.4399.com  211.68.69.250
+www.bupt.edu.cn 0.0.0.0
+www.kkk.xxx 10.3.58.19
+www.pornhub.com 2.2.2.2
+cn.pornhub.com 2.2.2.2
+www.google.co.jp 3.3.3.3
+www.bilibili.com 211.68.69.250
