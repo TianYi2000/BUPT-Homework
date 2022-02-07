@@ -30,9 +30,9 @@
 
 编写语法分析程序，实现对算术表达式的语法分析。要求所分析算数表达式由如下的文法产生。
 
-$$E\to E+T \quad|\quad E–T \quad|\quad T$$
+$E\to E+T \quad|\quad E–T \quad|\quad T$
 
-$$T\to T*F \quad|\quad T/F \quad|\quad F$$
+$T\to T*F \quad|\quad T/F \quad|\quad F$
 
-$$F\to (E) \quad|\quad num$$
+$F\to (E) \quad|\quad num$
 
