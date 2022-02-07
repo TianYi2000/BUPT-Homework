@@ -30,9 +30,4 @@
 
 编写语法分析程序，实现对算术表达式的语法分析。要求所分析算数表达式由如下的文法产生。
 
-$E\to E+T \quad|\quad E–T \quad|\quad T$
-
-$T\to T*F \quad|\quad T/F \quad|\quad F$
-
-$F\to (E) \quad|\quad num$
-
+![](https://s2.loli.net/2022/02/07/4Inct25G1Z8Myui.png)
